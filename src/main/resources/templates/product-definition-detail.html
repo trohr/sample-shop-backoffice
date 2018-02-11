@@ -1,0 +1,49 @@
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Product</title>
+    <link rel="stylesheet" th:href="@{/style.css}"></link>
+  </head>
+  <body>
+    <h2>Product</h2>
+    
+    <form method="POST">
+      <label for="name">Name:</label>
+        <input type="text" name="name" size="50" maxlength="128" th:value="${product == null ? '' : product.name}"></input>
+      <br/>
+
+      <label for="caption">Caption:</label>
+        <input type="text" name="caption" maxlength="256" th:value="${product == null ? '' : product.caption}"></input>
+      <br/>
+      
+      <label for="price">Price:</label>
+        <input type="number" name="price" step="0.1" th:value="${product == null ? '' : product.price}"></input>
+      <br/>
+      
+      <label for="specification">Specification:</label>
+      <br/>
+      <textarea rows="10" maxlength="2048" name="specification" th:value="${product == null ? '' : product.specification}"></textarea>
+      <br/>
+      
+      <label for="tags">Tags:</label>
+        <input type="text" name="tags" maxlength="256" th:value="${product == null ? '' : product.tags}"></input>
+      <br/>
+      
+      <label for="imageUrl">Image URL:</label>
+        <input type="text" name="imageUrl" maxlength="256" th:value="${product == null ? '' : product.imageUrl}" />
+      <br/>
+
+			<input type="hidden" th:value="${product.id}" th:unless="${product eq null}" />
+			
+      <input type="submit" value="Save Product" th:unless="${product eq null}" />
+      <input type="submit" value="Create Product" th:if="${product eq null}" />
+    </form>
+    <hr />
+    <form th:unless="${product eq null}" method="POST" th:action="@{/products}+'/'+${product.id}+'/delete'">
+    	<input type="hidden" th:value="${product.id}" />
+    	<input type="submit" value="Delete" />
+    </form>
+    	
+    <a th:href="@{/products}">Back to the list of all products</a>
+    
+  </body>
+</html>

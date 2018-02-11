@@ -1,0 +1,76 @@
+task wrapper(type: Wrapper) {
+	gradleVersion = '4.2.1'
+}
+
+buildscript {
+	ext {
+		springBootVersion = '1.5.7.RELEASE'
+		propDepsPluginVersion = '0.0.9.RELEASE'
+	}
+	repositories {
+		mavenLocal ()
+		jcenter()
+		// propdeps plugin (enable+disable devtools if on development)
+		maven { url 'http://repo.spring.io/plugins-release' }
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath("io.spring.gradle:propdeps-plugin:${propDepsPluginVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+configure(allprojects) {
+	// Dev Tools: https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#using-boot-devtools
+	// https://github.com/spring-gradle-plugins/propdeps-plugin
+    apply plugin: 'propdeps'
+    apply plugin: 'propdeps-maven'
+    apply plugin: 'propdeps-idea'
+    apply plugin: 'propdeps-eclipse'
+}
+
+
+group = 'cz.osu.oop3'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+jar {
+	baseName = 'shopbackoffice'
+}
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+	mavenLocal ()
+    // Use jcenter for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
+}
+
+dependencies {
+	// Spring boot
+	compile "org.springframework.boot:spring-boot-starter-web"
+	compile "org.springframework.boot:spring-boot-starter-thymeleaf"
+	// Tests
+	testCompile "org.springframework.boot:spring-boot-starter-test"
+	
+	// Only for development
+	optional("org.springframework.boot:spring-boot-devtools")
+	
+	
+	// https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-sql.html
+	// JPA support
+	compile "org.springframework.boot:spring-boot-starter-data-jpa"
+	// JDBC support (already included in spring-boot-starter-data-jpa)
+	// ""You need a dependency on spring-jdbc for an embedded database to be auto-configured. In this example it’s pulled in transitively via spring-boot-starter-data-jpa.""
+	compile "org.springframework:spring-jdbc"
+	
+	// Concrete DB support
+	// INFO: Toto by nikdy neměla být závislost reálného projektu, ale nyní to použijme:
+	//runtime "org.apache.derby:derby"
+	// https://dzone.com/articles/using-the-h2-database-console-in-spring-boot-with
+	compile "com.h2database:h2"
+
+}
