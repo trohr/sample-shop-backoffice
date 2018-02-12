@@ -3,6 +3,9 @@
  */
 package cz.osu.oop3.proj.persistence;
 
+import java.util.List;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
@@ -14,5 +17,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  */
 public interface ProductDefinitionRepository extends PagingAndSortingRepository<ProductDefinitionJpa, Long>
 {
-
+	List<ProductDefinitionJpa> findProductByName(String name);
+	List<ProductDefinitionJpa> findProductByName(String name, Sort sort);
 }

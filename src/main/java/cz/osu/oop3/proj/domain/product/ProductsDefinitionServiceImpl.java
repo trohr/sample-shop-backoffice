@@ -66,6 +66,37 @@ public class ProductsDefinitionServiceImpl implements ProductsDefinitionService 
 			.collect(Collectors.toList());
 		return dtoList;
 	}
+	
+
+	@Override
+	public List<ProductDefinitionDto> loadProductsByName(String searchByName, OrderBy... order)
+	{
+		final Optional<Sort> sort = orderArrayToSpringData(order);
+		
+		final Iterable<ProductDefinitionJpa> allStoredTexts;
+		if (searchByName == null)
+		{
+			if (sort.isPresent()) {
+				allStoredTexts = repository.findAll(sort.get());
+			} else {
+				allStoredTexts = repository.findAll();
+			}
+		}
+		else
+		{
+			if (sort.isPresent()) {
+				allStoredTexts = repository.findProductByName(searchByName, sort.get());
+			} else {
+				allStoredTexts = repository.findProductByName(searchByName);
+			}
+		}
+		final List<ProductDefinitionDto> dtoList = StreamSupport.stream(allStoredTexts.spliterator(), false)
+			.map(ProductsDefinitionServiceImpl::assembleDtoFromJpa)
+			.collect(Collectors.toList());
+		return dtoList;
+	}
+	
+	
 
 	@Override
 	public ProductDefinitionDto getProduct(long id) throws EntityNotFoundException

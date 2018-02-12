@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,8 +55,12 @@ public class ProductsDefinitionController {
 	@GetMapping
 	public String getAllProductDefinitions (
 			@RequestParam(name = "priceOrdering", required=false) String priceOrdering,
+			@RequestParam(name = "searchByName", required=false) String searchByName,
 			Model model)
 	{
+		if (!StringUtils.hasText(searchByName)) {
+			searchByName = null;
+		}
 		final Optional<OrderBy> priceOrderBy = getOrderingEnum(priceOrdering).map(dir -> new OrderBy("price", dir));
 		
 		final OrderBy[] orderBy = Stream.of (priceOrderBy)
@@ -63,7 +68,16 @@ public class ProductsDefinitionController {
 				.map(Optional::get)
 				.toArray(n -> new OrderBy[n]);
 		
-		final List<ProductDefinitionDto> products = service.loadAllProducts(orderBy);
+		final List<ProductDefinitionDto> products;
+		if (StringUtils.hasText(searchByName))
+		{
+			products = service.loadProductsByName(searchByName, orderBy);
+		}
+		else
+		{
+			products = service.loadAllProducts(orderBy);
+		}
+
 		model.addAttribute("products", products);
 		if (orderBy.length > 0) {
 			model.addAttribute("orderBy", orderBy);
@@ -71,6 +85,9 @@ public class ProductsDefinitionController {
 			Arrays.stream(orderBy)
 				.map((OrderBy o) -> new String[] {o.getProperty()+"Ordering", o.getDirection().toString()})
 				.forEach(prop -> model.addAttribute(prop[0], prop[1]));
+		}
+		if (searchByName != null) {
+			model.addAttribute("searchByName", searchByName);
 		}
 
 		return "product-definitions-list";

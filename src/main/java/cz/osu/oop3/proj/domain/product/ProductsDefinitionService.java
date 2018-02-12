@@ -17,6 +17,9 @@ public interface ProductsDefinitionService {
 
 	List<ProductDefinitionDto> loadAllProducts();
 	List<ProductDefinitionDto> loadAllProducts(OrderBy... order);
+	
+	List<ProductDefinitionDto> loadProductsByName(String searchByName, OrderBy... order);
+	
 	default List<ProductDefinitionDto> loadAllProducts(List<OrderBy> order)
 	{
 		if (order == null) {

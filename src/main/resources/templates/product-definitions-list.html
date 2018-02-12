@@ -6,6 +6,12 @@
   <body>
     <h2>Products List</h2>
     
+    	<form method="GET">
+    		Search by name: 
+    		<input type="search" name="searchByName" th:value="${searchByName eq null ? '' : searchByName}"></input>
+				<input type="submit" value="Search"/>
+    	</form>
+    	
     <div th:unless="${#lists.isEmpty(products)}">
     
     	<!-- SORT FORM -->
@@ -19,6 +25,7 @@
 				</select>
 				<input type="submit" value="Sort"/>
     	</form>
+    	
     	
     	<br />
     	
