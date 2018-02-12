@@ -1,6 +1,10 @@
 package cz.osu.oop3.proj;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,10 +14,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import cz.osu.oop3.proj.domain.EntityNotFoundException;
 import cz.osu.oop3.proj.domain.product.ProductDefinitionDto;
 import cz.osu.oop3.proj.domain.product.ProductsDefinitionService;
+import cz.osu.oop3.proj.domain.sorting.OrderBy;
 
 
 @Controller
@@ -46,11 +52,43 @@ public class ProductsDefinitionController {
 	
 	/** 1) List all page */
 	@GetMapping
-	public String getAllProductDefinitions (Model model)
+	public String getAllProductDefinitions (
+			@RequestParam(name = "priceOrdering", required=false) String priceOrdering,
+			Model model)
 	{
-		final List<ProductDefinitionDto> products = service.loadAllProducts();
+		final Optional<OrderBy> priceOrderBy = getOrderingEnum(priceOrdering).map(dir -> new OrderBy("price", dir));
+		
+		final OrderBy[] orderBy = Stream.of (priceOrderBy)
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.toArray(n -> new OrderBy[n]);
+		
+		final List<ProductDefinitionDto> products = service.loadAllProducts(orderBy);
 		model.addAttribute("products", products);
+		if (orderBy.length > 0) {
+			model.addAttribute("orderBy", orderBy);
+			
+			Arrays.stream(orderBy)
+				.map((OrderBy o) -> new String[] {o.getProperty()+"Ordering", o.getDirection().toString()})
+				.forEach(prop -> model.addAttribute(prop[0], prop[1]));
+		}
+
 		return "product-definitions-list";
+	}
+	
+	static Optional<OrderBy.Direction> getOrderingEnum(String ordering)
+	{
+		if (ordering == null) {
+			return Optional.empty();
+		}
+		try {
+			return Optional.of(
+					OrderBy.Direction.valueOf(
+							ordering.toUpperCase(Locale.ROOT))
+			);
+		} catch (Exception e) {
+			return Optional.empty();
+		}
 	}
 
 

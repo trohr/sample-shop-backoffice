@@ -3,14 +3,19 @@
  */
 package cz.osu.oop3.proj.domain.product;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 
 import cz.osu.oop3.proj.domain.EntityNotFoundException;
+import cz.osu.oop3.proj.domain.sorting.OrderBy;
 import cz.osu.oop3.proj.persistence.ProductDefinitionJpa;
 import cz.osu.oop3.proj.persistence.ProductDefinitionRepository;
 
@@ -39,6 +44,23 @@ public class ProductsDefinitionServiceImpl implements ProductsDefinitionService 
 	public List<ProductDefinitionDto> loadAllProducts()
 	{
 		final Iterable<ProductDefinitionJpa> allStoredTexts = repository.findAll();
+		final List<ProductDefinitionDto> dtoList = StreamSupport.stream(allStoredTexts.spliterator(), false)
+			.map(ProductsDefinitionServiceImpl::assembleDtoFromJpa)
+			.collect(Collectors.toList());
+		return dtoList;
+	}
+
+	@Override
+	public List<ProductDefinitionDto> loadAllProducts(OrderBy... order)
+	{
+		final Optional<Sort> sort = orderArrayToSpringData(order);
+		
+		final Iterable<ProductDefinitionJpa> allStoredTexts;
+		if (sort.isPresent()) {
+			allStoredTexts = repository.findAll(sort.get());
+		} else {
+			allStoredTexts = repository.findAll();
+		}
 		final List<ProductDefinitionDto> dtoList = StreamSupport.stream(allStoredTexts.spliterator(), false)
 			.map(ProductsDefinitionServiceImpl::assembleDtoFromJpa)
 			.collect(Collectors.toList());
@@ -121,4 +143,21 @@ public class ProductsDefinitionServiceImpl implements ProductsDefinitionService 
 		jpa.setImageUrl(dto.getTags());
 		return jpa;
 	}
+
+	static Optional<Sort> orderArrayToSpringData (OrderBy... order) {
+		if (order == null || order.length == 0) {
+			return Optional.empty();
+		}
+		final List<Order> springOrders = Arrays.stream(order)
+				.map(ProductsDefinitionServiceImpl::orderToSpringData)
+				.collect(Collectors.toList());
+		return Optional.of(new Sort(springOrders));
+	}
+
+	static Order orderToSpringData (OrderBy order) {
+		final Sort.Direction direction = order.getDirection() == OrderBy.Direction.ASC
+				? Sort.Direction.ASC : Sort.Direction.DESC;
+		return new Order(direction, order.getProperty());
+	}
+
 }

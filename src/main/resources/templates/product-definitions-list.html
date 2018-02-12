@@ -7,6 +7,22 @@
     <h2>Products List</h2>
     
     <div th:unless="${#lists.isEmpty(products)}">
+    
+    	<!-- SORT FORM -->
+    	<form method="GET">
+    		Sort products by price
+<!--     		<select name="priceOrdering" th:selected="${priceOrdering eq null ? 'NONE' : priceOrdering}"> -->
+    		<select name="priceOrdering">
+				  <option value="NONE" th:selected="${priceOrdering eq null}">unspecified</option>
+				  <option value="ASC" th:selected="${priceOrdering == 'ASC'}">ascending</option>
+				  <option value="DESC" th:selected="${priceOrdering == 'DESC'}">descending</option>
+				</select>
+				<input type="submit" value="Sort"/>
+    	</form>
+    	
+    	<br />
+    	
+    	<!-- DATA TABLE -->
     	<table>
     		<tr><!-- HEADER ROW -->
     			<th>Preview</th>
