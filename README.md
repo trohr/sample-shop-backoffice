@@ -3,7 +3,11 @@
 
 Projekt řešen jako jednoduchý backoffice pro zadávání produktů do prodejního systému.
 
-Řešeno pomocí frameworku [spring-boot][1] za pomocí templatovacího engine [thymeleaf][2].
+- Řešeno pomocí frameworku [spring-boot][1] za pomocí templatovacího engine [thymeleaf][2].
+- Přístup k DB je řešen pomocí _spring-boot-starter-data-jpa_ balíčku a je použita [in-memory databáze H2][3].
+- Databáze je v současné verzi inicializována pomocí automatické konfigurace spring-boot pro paměťovou (testovací) databázi.
+- Přístup na ostrou databázi, včetně konfigurace připojení, není zatím vyřešen ani zdokumentován.
+- Projekt je rozdělen na dva submoduly (jeden pro jádro, druhý pro webovou aplikaci). Definice buildu je řešena v Gradle (viz build.gradle) jako multi-module build. 
 
 
 Zadání
@@ -28,7 +32,7 @@ Spustit běh aplikace ve vývojovém prostředí lze pomocí příkazu
 
 Produkční běh je pomocí uber-jar.
 
-	./gradlew build && java -jar build/libs/shopbackoffice-0.0.1-SNAPSHOT.jar
+	./gradlew build && java -jar build/libs/shopbackoffice-0.0.2-SNAPSHOT.jar
 
 
 Integrace s DB a JPA
@@ -65,10 +69,28 @@ vzoru Repository. Nemusíme psát implementaci, používat EntityManager, ap.: s
 Implementaci takové třídy poskytne spring-data, nám stačí si tuto třídu nechat nainjektovat pomocí IoC a volat metody pro persistenci či zjištění dat.
 
 
+Modularizace zdrojového kódu (Gradle)
+-------------------------------------
+Rozdělení na projekty: jeden pro práci s DB (_shop-backoffice-products-core_) a jeden pro prezentaci na web (_shop-backoffice-webapp_).
+
+Definice buildu je řešena v Gradle jako multi-module build. (Viz _settings.gradle_ a _build.gradle_)
+
+	include 'shop-backoffice-products-core'
+	include 'shop-backoffice-webapp'
+
+Instrukce ke konfiguraci Gradle multi-modulových projektů lze najít v [návodu pro Gradle][5] 
+
+
+### Vize Microservices Architektury
+Pokud bychom chtěli mít projekt pro správu definic Produktů jako součást Micro-service architektury, poskytli bychom k DB veřejné API a vystavili jej pomocí REST.
+Webová aplikace tak bude implementovat uživatelské rozhraní (UI&UX) pro celý Backend našeho virtuálního šopu (gateway); samotné akce bude provádět pomocí dílčích REST API typu Microservice. Tam právě bude umístěna business logika.
+Tímto docílíme nezávislosti dílčích podsystémů systémů a tím např. toho, že výpadek jednoho neohrozí funkci ostatních. Antifragilita aplikace je zde náš cíl.
+
+
 Reference
 ---------
 [1]: https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/	Spring Boot Reference
 [2]: http://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html		Thymeleaf Usage
 [3]: https://dzone.com/articles/using-the-h2-database-console-in-spring-boot-with   Using the H2 Database Console in Spring Boot with Spring Security
 [4]: https://springframework.guru/spring-boot-web-application-part-3-spring-data-jpa/ Database Persistence with Spring Boot
-
+[5]: https://guides.gradle.org/creating-multi-project-builds/ Gradle Guides - Creating Multi-project Builds

@@ -19,58 +19,83 @@ buildscript {
 	}
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
-
-configure(allprojects) {
+allprojects {
+	// IDE Integration
+	apply plugin: 'eclipse'
 	// Dev Tools: https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#using-boot-devtools
 	// https://github.com/spring-gradle-plugins/propdeps-plugin
     apply plugin: 'propdeps'
     apply plugin: 'propdeps-maven'
     apply plugin: 'propdeps-idea'
     apply plugin: 'propdeps-eclipse'
+	
+	// Classification -- Artifact GroupID and version number is shared across all submodules.
+	group = 'shop-backoffice'
+	// ??? Lze pouzit?: group = rootProject.name 
+	version = '0.0.2-SNAPSHOT'
+	
+	// All java subprojects run on JRE 1.8
+	sourceCompatibility = 1.8
+
+	// In this section you declare where to find the dependencies of your project
+	repositories {
+		mavenLocal ()
+	    // Use jcenter for resolving your dependencies.
+	    // You can declare any Maven/Ivy/file repository here.
+	    jcenter()
+	}
 }
 
 
-group = 'cz.osu.oop3'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.8
-
-jar {
-	baseName = 'shopbackoffice'
-}
-
-// In this section you declare where to find the dependencies of your project
-repositories {
-	mavenLocal ()
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
-}
-
-dependencies {
-	// Spring boot
-	compile "org.springframework.boot:spring-boot-starter-web"
-	compile "org.springframework.boot:spring-boot-starter-thymeleaf"
-	// Tests
-	testCompile "org.springframework.boot:spring-boot-starter-test"
+subprojects {
+	// Apply the java plugin to add support for Java
+	apply plugin: 'java'
 	
-	// Only for development
-	optional("org.springframework.boot:spring-boot-devtools")
-	
-	
-	// https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-sql.html
-	// JPA support
-	compile "org.springframework.boot:spring-boot-starter-data-jpa"
-	// JDBC support (already included in spring-boot-starter-data-jpa)
-	// ""You need a dependency on spring-jdbc for an embedded database to be auto-configured. In this example it’s pulled in transitively via spring-boot-starter-data-jpa.""
-	compile "org.springframework:spring-jdbc"
-	
-	// Concrete DB support
-	// INFO: Toto by nikdy neměla být závislost reálného projektu, ale nyní to použijme:
-	//runtime "org.apache.derby:derby"
-	// https://dzone.com/articles/using-the-h2-database-console-in-spring-boot-with
-	compile "com.h2database:h2"
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
 
 }
+
+
+project(':shop-backoffice-webapp')
+{
+	ext {
+		projectNameLong = 'Shop Backoffice Application'
+		projectDescription = 'Used for configuration of products in our simple shop application.'
+	}
+	
+	apply plugin: 'org.springframework.boot'
+	
+	jar {
+		baseName = 'shopbackoffice'
+	}
+	
+	
+	dependencies {
+		// Spring boot
+		compile "org.springframework.boot:spring-boot-starter-web"
+		compile "org.springframework.boot:spring-boot-starter-thymeleaf"
+		// Tests
+		testCompile "org.springframework.boot:spring-boot-starter-test"
+		
+		// Only for development
+		optional("org.springframework.boot:spring-boot-devtools")
+		
+		
+		// https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-sql.html
+		// JPA support
+		compile "org.springframework.boot:spring-boot-starter-data-jpa"
+		// JDBC support (already included in spring-boot-starter-data-jpa)
+		// ""You need a dependency on spring-jdbc for an embedded database to be auto-configured. In this example it’s pulled in transitively via spring-boot-starter-data-jpa.""
+		compile "org.springframework:spring-jdbc"
+		
+		// Concrete DB support
+		// INFO: Toto by nikdy neměla být závislost reálného projektu, ale nyní to použijme:
+		//runtime "org.apache.derby:derby"
+		// https://dzone.com/articles/using-the-h2-database-console-in-spring-boot-with
+		compile "com.h2database:h2"
+	}
+}
+
+
+

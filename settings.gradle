@@ -5,14 +5,42 @@
  * In a single project build this file can be empty or even removed.
  *
  * Detailed information about configuring a multi-project build in Gradle can be found
- * in the user guide at https://docs.gradle.org/3.5/userguide/multi_project_builds.html
+ * in the user guide at https://docs.gradle.org/4.1/userguide/multi_project_builds.html
  */
 
+
+/**
+	
+	__SHOP BACKOFFICE__
+	
+	Projekt jednoduchého backoffice pro zadávání produktů do prodejního systému.
+	
+	groupId = 'shop-backoffice'
+	
+	
+	SUB-PROJECTS
+	
+	1) Chceme mít více podprojektů.
+	2) Jejich plný název bude odpovídat 'artifactId' (tedy ve tvaru 'shop-backoffice-<submodule>')
+	3) Zdrojové soubory k podprojektům budou uvnitř adresářové struktury odkazovány zkráceným názvem a tedy umístěny v podadresářích  './<submodule>'.
+	 
+	https://stackoverflow.com/questions/20128416/gradle-subproject-name-different-than-folder-name#20128717
+	
+	
+*/
+
+// ROOT PROJECT NAME
+rootProject.name = 'shop-backoffice'
+
+// SUBPROJECTS
 /*
-// To declare projects as part of a multi-project build use the 'include' method
+// To declare projects as part of a multi-project build use the 'include' or 'includeFlat' method:
 include 'shared'
 include 'api'
 include 'services:webservice'
 */
+include 'shop-backoffice-products-core'
+include 'shop-backoffice-webapp'
 
-rootProject.name = 'oop3_proj'
+project(":shop-backoffice-products-core").projectDir = file("backoffice-products-core")
+project(":shop-backoffice-webapp").projectDir = file("backoffice-webapp")
