@@ -3,8 +3,8 @@
 
 Projekt řešen jako jednoduchý backoffice pro zadávání produktů do prodejního systému.
 
-- Řešeno pomocí frameworku [spring-boot][1] za pomocí templatovacího engine [thymeleaf][2].
-- Přístup k DB je řešen pomocí _spring-boot-starter-data-jpa_ balíčku a je použita [in-memory databáze H2][3].
+- Řešeno pomocí frameworku [spring-boot \[1\]][1] za pomocí templatovacího engine [thymeleaf \[2\]][2].
+- Přístup k DB je řešen pomocí _spring-boot-starter-data-jpa_ balíčku a je použita in-memory databáze [H2 \[3\]][3].
 - Databáze je v současné verzi inicializována pomocí automatické konfigurace spring-boot pro paměťovou (testovací) databázi.
 - Přístup na ostrou databázi, včetně konfigurace připojení, není zatím vyřešen ani zdokumentován.
 - Projekt je rozdělen na dva submoduly (jeden pro jádro, druhý pro webovou aplikaci). Definice buildu je řešena v Gradle (viz build.gradle) jako multi-module build. 
@@ -38,7 +38,9 @@ Produkční běh je pomocí uber-jar.
 Integrace s DB a JPA
 --------------------
 Pro tento úkol využíváme paměťovou DB **H2** a JPA integraci pomocí **spring-data**.
-Postupuji dle návodů na Internetu [Database Persistence with Spring Boot][4] a [Using the H2 Database Console in Spring Boot with Spring Security][3].
+Postupuji dle návodů na Internetu:
+- [Database Persistence with Spring Boot \[4\]][4]
+- a [Using the H2 Database Console in Spring Boot with Spring Security \[3\]][3].
 
 Integrace do spring-boot projektu je velice jednoduchá:
 
@@ -64,7 +66,11 @@ My jsme žádné parametry zatím nanastavili, tak se používá default paměť
 Pro přístup k datům stačí vytvořit anotovanou entity třídu (klasická JPA @Entity) a pro ni rozhraní
 vzoru Repository. Nemusíme psát implementaci, používat EntityManager, ap.: stačí podědit _spring-data_ CrudRepository:
 
-	public interface StyledTextRepository extends CrudRepository<StyledTextJpa, Integer> {}
+	public interface ProductDefinitionRepository extends PagingAndSortingRepository<ProductDefinitionJpa, Long>
+	{
+		List<ProductDefinitionJpa> findProductByName(String name);
+		List<ProductDefinitionJpa> findProductByName(String name, Sort sort);
+	}
 
 Implementaci takové třídy poskytne spring-data, nám stačí si tuto třídu nechat nainjektovat pomocí IoC a volat metody pro persistenci či zjištění dat.
 
@@ -78,15 +84,17 @@ Definice buildu je řešena v Gradle jako multi-module build. (Viz _settings.gra
 	include 'shop-backoffice-products-core'
 	include 'shop-backoffice-webapp'
 
-Plný název podmodulů odpovídá 'artifactId' (tedy ve tvaru 'shop-backoffice-<submodule>').
+Plný název podmodulů odpovídá 'artifactId' (tedy ve tvaru '`shop-backoffice-<submodule>`').
 
 Zdrojové soubory k podprojektům jsou uvnitř adresářové struktury odkazovány zkráceným názvem
-a jsou tedy umístěny v podadresářích  './<submodule>'.
+a jsou tedy umístěny v podadresářích  '`./<submodule>`'.
 
 
-Instrukce ke konfiguraci Gradle multi-modulových projektů lze najít v [návodu pro Gradle][5]
-+ https://docs.gradle.org/current/userguide/intro_multi_project_builds.html
-+ https://docs.gradle.org/current/userguide/multi_project_builds.html
+Instrukce ke konfiguraci Gradle multi-modulových projektů lze najít v [návodu pro Gradle \[5\]][5].
+
+Další reference:
++ <https://docs.gradle.org/current/userguide/intro_multi_project_builds.html>
++ <https://docs.gradle.org/current/userguide/multi_project_builds.html>
  
 
 ### Deklarované závislosti
@@ -114,20 +122,26 @@ Instrukce ke konfiguraci Gradle multi-modulových projektů lze najít v [návod
 		compile "com.h2database:h2"
 
 
+
 ### Vize Microservices Architektury
 Pokud bychom chtěli mít projekt pro správu definic Produktů jako součást Micro-service architektury, poskytli bychom k DB veřejné API a vystavili jej pomocí REST.
+
 Webová aplikace tak bude implementovat uživatelské rozhraní (UI&UX) pro celý Backend našeho virtuálního šopu (gateway); samotné akce bude provádět pomocí dílčích REST API typu Microservice. Tam právě bude umístěna business logika.
+
 Tímto docílíme nezávislosti dílčích podsystémů systémů a tím např. toho, že výpadek jednoho neohrozí funkci ostatních. Antifragilita aplikace je zde náš cíl.
 
 
 Reference
 ---------
-[1]: https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/	Spring Boot Reference
+[1]: https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/	"Spring Boot Reference"
+[2]: http://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html		"Thymeleaf Usage"
+[3]: https://dzone.com/articles/using-the-h2-database-console-in-spring-boot-with   "Using the H2 Database Console in Spring Boot with Spring Security"
+[4]: https://springframework.guru/spring-boot-web-application-part-3-spring-data-jpa/ "Database Persistence with Spring Boot"
+[5]: https://guides.gradle.org/creating-multi-project-builds/ "Gradle Guides - Creating Multi-project Builds"
 
-[2]: http://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html		Thymeleaf Usage
 
-[3]: https://dzone.com/articles/using-the-h2-database-console-in-spring-boot-with   Using the H2 Database Console in Spring Boot with Spring Security
-
-[4]: https://springframework.guru/spring-boot-web-application-part-3-spring-data-jpa/ Database Persistence with Spring Boot
-
-[5]: https://guides.gradle.org/creating-multi-project-builds/ Gradle Guides - Creating Multi-project Builds
+- <a name="ref1"></a>\[1\] - Spring Boot Reference :: https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/
+- <a name="ref2"></a>\[2\] - Thymeleaf Usage :: http://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html	
+- <a name="ref3"></a>\[3\] - Using the H2 Database Console in Spring Boot with Spring Security :: https://dzone.com/articles/using-the-h2-database-console-in-spring-boot-with  
+- <a name="ref4"></a>\[4\] - Database Persistence with Spring Boot :: https://springframework.guru/spring-boot-web-application-part-3-spring-data-jpa/
+- <a name="ref5"></a>\[5\] - Gradle Guides - Creating Multi-project Builds :: https://guides.gradle.org/creating-multi-project-builds/
