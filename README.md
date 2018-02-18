@@ -32,7 +32,7 @@ Spustit běh aplikace ve vývojovém prostředí lze pomocí příkazu
 
 Produkční běh je pomocí uber-jar.
 
-	./gradlew build && java -jar build/libs/shopbackoffice-0.0.2-SNAPSHOT.jar
+	./gradlew build && java -jar backoffice-webapp/build/libs/shop-backoffice-webapp-0.0.2-SNAPSHOT.jar
 
 
 Integrace s DB a JPA
@@ -78,7 +78,40 @@ Definice buildu je řešena v Gradle jako multi-module build. (Viz _settings.gra
 	include 'shop-backoffice-products-core'
 	include 'shop-backoffice-webapp'
 
-Instrukce ke konfiguraci Gradle multi-modulových projektů lze najít v [návodu pro Gradle][5] 
+Plný název podmodulů odpovídá 'artifactId' (tedy ve tvaru 'shop-backoffice-<submodule>').
+
+Zdrojové soubory k podprojektům jsou uvnitř adresářové struktury odkazovány zkráceným názvem
+a jsou tedy umístěny v podadresářích  './<submodule>'.
+
+
+Instrukce ke konfiguraci Gradle multi-modulových projektů lze najít v [návodu pro Gradle][5]
++ https://docs.gradle.org/current/userguide/intro_multi_project_builds.html
++ https://docs.gradle.org/current/userguide/multi_project_builds.html
+ 
+
+### Deklarované závislosti
+- shop-backoffice-products-core:
+
+		// Spring-boot DATA + JPA + JDBC + AOP support
+		compile "org.springframework.boot:spring-boot-starter-data-jpa"
+
+
+- shop-backoffice-webapp:
+
+		// ZAVISLOST NA VNITRNI KNIHOVNE _CORE_
+		compile project(':shop-backoffice-products-core') 
+		
+		// Spring boot WEB
+		compile "org.springframework.boot:spring-boot-starter-web"
+		// TEMPLATING ENGINE
+		compile "org.springframework.boot:spring-boot-starter-thymeleaf"
+		
+		// SPRING-DATA + JPA support
+		compile "org.springframework.boot:spring-boot-starter-data-jpa"
+		
+		// Concrete DB support
+		// INFO: Toto by nikdy neměla být závislost reálného projektu, ale nyní to použijme:
+		compile "com.h2database:h2"
 
 
 ### Vize Microservices Architektury
@@ -90,7 +123,11 @@ Tímto docílíme nezávislosti dílčích podsystémů systémů a tím např. 
 Reference
 ---------
 [1]: https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/	Spring Boot Reference
+
 [2]: http://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html		Thymeleaf Usage
+
 [3]: https://dzone.com/articles/using-the-h2-database-console-in-spring-boot-with   Using the H2 Database Console in Spring Boot with Spring Security
+
 [4]: https://springframework.guru/spring-boot-web-application-part-3-spring-data-jpa/ Database Persistence with Spring Boot
+
 [5]: https://guides.gradle.org/creating-multi-project-builds/ Gradle Guides - Creating Multi-project Builds

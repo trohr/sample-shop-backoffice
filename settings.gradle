@@ -10,6 +10,10 @@
 
 
 /**
+	MULTI-MODULE BUILD
+	==================
+	https://docs.gradle.org/current/userguide/intro_multi_project_builds.html
+	https://docs.gradle.org/current/userguide/multi_project_builds.html
 	
 	__SHOP BACKOFFICE__
 	
@@ -39,8 +43,21 @@ include 'shared'
 include 'api'
 include 'services:webservice'
 */
+
+
+/* VER 1
+*/
 include 'shop-backoffice-products-core'
 include 'shop-backoffice-webapp'
 
 project(":shop-backoffice-products-core").projectDir = file("backoffice-products-core")
 project(":shop-backoffice-webapp").projectDir = file("backoffice-webapp")
+
+/* VER 2
+include 'backoffice-products-core'
+include 'backoffice-webapp'
+
+// change subproject name
+project(":backoffice-products-core").name = "shop-backoffice-products-core"
+project(":backoffice-webapp").name = "shop-backoffice-webapp"
+*/

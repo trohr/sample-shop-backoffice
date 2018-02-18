@@ -4,7 +4,7 @@ task wrapper(type: Wrapper) {
 
 buildscript {
 	ext {
-		springBootVersion = '1.5.7.RELEASE'
+		springBootVersion = '1.5.7.RELEASE' // 2.0.0.BUILD-SNAPSHOT
 		propDepsPluginVersion = '0.0.9.RELEASE'
 	}
 	repositories {
@@ -20,6 +20,10 @@ buildscript {
 }
 
 allprojects {
+	// Dependency Management which allows to import the Maven BOM dependencies
+	// https://github.com/spring-gradle-plugins/dependency-management-plugin
+	apply plugin: 'io.spring.dependency-management'
+	
 	// IDE Integration
 	apply plugin: 'eclipse'
 	// Dev Tools: https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#using-boot-devtools
@@ -33,9 +37,6 @@ allprojects {
 	group = 'shop-backoffice'
 	// ??? Lze pouzit?: group = rootProject.name 
 	version = '0.0.2-SNAPSHOT'
-	
-	// All java subprojects run on JRE 1.8
-	sourceCompatibility = 1.8
 
 	// In this section you declare where to find the dependencies of your project
 	repositories {
@@ -44,18 +45,66 @@ allprojects {
 	    // You can declare any Maven/Ivy/file repository here.
 	    jcenter()
 	}
+	
+	// Inklucujeme verze zavislosti, ktere pouziva spring-boot
+	// (nemusime je pak explicitne specifikovat)
+	// https://github.com/spring-gradle-plugins/dependency-management-plugin
+	dependencyManagement {
+		imports {
+			mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+		}
+	}
+	
 }
 
-
+/**
+	MULTI-MODULE BUILD
+	==================
+	https://docs.gradle.org/current/userguide/intro_multi_project_builds.html
+	https://docs.gradle.org/current/userguide/multi_project_builds.html
+*/
 subprojects {
 	// Apply the java plugin to add support for Java
 	apply plugin: 'java'
 	
+	// All java subprojects run on JRE 1.8
 	sourceCompatibility = 1.8
 	targetCompatibility = 1.8
-
 }
 
+project(':shop-backoffice-products-core')
+{
+	ext {
+		projectNameLong = 'Backoffice - Product Definitions Core'
+		projectDescription = 'Library for accessing the products definition core functions (as well as persistence)'
+	}
+	
+	// https://docs.gradle.org/current/userguide/java_library_plugin.html
+	//apply plugin: 'java-library'
+	
+	dependencies {
+		// Spring boot
+		//compile "org.springframework.boot:spring-boot-starter-web"
+		// Tests
+		//testCompile "org.springframework.boot:spring-boot-starter-test"
+		
+		
+		// https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-sql.html
+		// Spring-boot DATA + JPA + JDBC + AOP support
+		compile "org.springframework.boot:spring-boot-starter-data-jpa"
+		
+		//
+		// Only for development
+		//
+		optional("org.springframework.boot:spring-boot-devtools")
+		// Concrete DB support
+		// INFO: Toto by nikdy neměla být závislost reálného projektu, ale nyní to použijme:
+		//runtime "org.apache.derby:derby"
+		// https://dzone.com/articles/using-the-h2-database-console-in-spring-boot-with
+		testRuntime("com.h2database:h2")
+		
+	}
+}
 
 project(':shop-backoffice-webapp')
 {
@@ -64,14 +113,13 @@ project(':shop-backoffice-webapp')
 		projectDescription = 'Used for configuration of products in our simple shop application.'
 	}
 	
+	// Toto je spring-boot aplikace
 	apply plugin: 'org.springframework.boot'
 	
-	jar {
-		baseName = 'shopbackoffice'
-	}
-	
-	
 	dependencies {
+		// ZAVISLOST NA VNITRNI KNIHOVNE _CORE_
+		compile project(':shop-backoffice-products-core') 
+		
 		// Spring boot
 		compile "org.springframework.boot:spring-boot-starter-web"
 		compile "org.springframework.boot:spring-boot-starter-thymeleaf"
