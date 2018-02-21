@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import cz.osu.oop3.proj.domain.EntityNotFoundException;
 import cz.osu.oop3.proj.domain.sorting.OrderBy;
@@ -41,6 +43,7 @@ public class ProductsDefinitionServiceImpl implements ProductsDefinitionService 
 	 * @see cz.osu.oop3.proj.domain.product.ProductsDefinitionService#loadAllProducts()
 	 */
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED, readOnly=true)
 	public List<ProductDefinitionDto> loadAllProducts()
 	{
 		final Iterable<ProductDefinitionJpa> allStoredTexts = repository.findAll();
@@ -51,6 +54,7 @@ public class ProductsDefinitionServiceImpl implements ProductsDefinitionService 
 	}
 
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED, readOnly=true)
 	public List<ProductDefinitionDto> loadAllProducts(OrderBy... order)
 	{
 		final Optional<Sort> sort = orderArrayToSpringData(order);
@@ -69,6 +73,7 @@ public class ProductsDefinitionServiceImpl implements ProductsDefinitionService 
 	
 
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED, readOnly=true)
 	public List<ProductDefinitionDto> loadProductsByName(String searchByName, OrderBy... order)
 	{
 		final Optional<Sort> sort = orderArrayToSpringData(order);
@@ -99,6 +104,7 @@ public class ProductsDefinitionServiceImpl implements ProductsDefinitionService 
 	
 
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED, readOnly=true)
 	public ProductDefinitionDto getProduct(long id) throws EntityNotFoundException
 	{
 		ProductDefinitionJpa entity = repository.findOne(id);
@@ -113,6 +119,7 @@ public class ProductsDefinitionServiceImpl implements ProductsDefinitionService 
 	 * @see cz.osu.oop3.proj.domain.product.ProductsDefinitionService#storeNewProduct(cz.osu.oop3.proj.domain.product.ProductDefinitionDto)
 	 */
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
 	public ProductDefinitionDto storeNewProduct(ProductDefinitionDto obj)
 	{
 		ProductDefinitionJpa entity = assembleJpaFromDto(null, obj);
@@ -127,6 +134,7 @@ public class ProductsDefinitionServiceImpl implements ProductsDefinitionService 
 	 * @see cz.osu.oop3.proj.domain.product.ProductsDefinitionService#updateProduct(cz.osu.oop3.proj.domain.product.ProductDefinitionDto)
 	 */
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
 	public ProductDefinitionDto updateProduct(ProductDefinitionDto obj)
 			throws EntityNotFoundException
 	{
@@ -144,6 +152,7 @@ public class ProductsDefinitionServiceImpl implements ProductsDefinitionService 
 	 * @see cz.osu.oop3.proj.domain.product.ProductsDefinitionService#deleteProduct(long)
 	 */
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
 	public void deleteProduct(long id) {
 		// XXX jak se chova Spring-Data Repository, kdyz ji podsunu id neexistujiciho?
 		repository.delete(id);
