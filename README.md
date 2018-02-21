@@ -121,7 +121,30 @@ Další reference:
 		// INFO: Toto by nikdy neměla být závislost reálného projektu, ale nyní to použijme:
 		compile "com.h2database:h2"
 
+#### Definice verzí knihoven
+Nechceme specifikovat verze vsech pouzitych a zavislych knihoven sami,
+tedy použijeme techniku známou z maven, tzv. import BOM (Bill of Material) balíčku.
 
+Tato technika nám dovolí specifikovat verze použitých knihoven pro balík knihoven najednou,
+tedy se spolehnout na provázanost knihoven, která je odladěna, a je ověřeno, že poskytují 
+požadovanou a dokumentovanou funkcionalitu.
+
+		// Dependency Management which allows to import the Maven BOM dependencies
+		// https://github.com/spring-gradle-plugins/dependency-management-plugin
+		apply plugin: 'io.spring.dependency-management'
+
+My v našem projektu budeme používat závislosti, které jsou implicitní pro 
+Spring-Boot verze 1.5.7.RELEASE, naimportujeme tedy knihovnu 
+`org.springframework.boot:spring-boot-dependencies:1.5.7.RELEASE`.
+
+		// Inklucujeme verze zavislosti, ktere pouziva spring-boot
+		// (nemusime je pak explicitne specifikovat)
+		// Funkcionalitu dodava gradle plugin 'io.spring.dependency-management'
+		dependencyManagement {
+			imports {
+				mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+			}
+		}
 
 ### Vize Microservices Architektury
 Pokud bychom chtěli mít projekt pro správu definic Produktů jako součást Micro-service architektury, poskytli bychom k DB veřejné API a vystavili jej pomocí REST.
